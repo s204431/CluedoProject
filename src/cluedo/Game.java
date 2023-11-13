@@ -18,10 +18,10 @@ public class Game {
     public static final int N_PLAYER_CARDS = (N_ROOMS + N_WEAPONS + N_PEOPLE - 3) / N_PLAYERS;
 
     // Murderer is represented by 3 cards.
-    public Card[] murdererCards;
+    private Card[] murdererCards;
 
     // Array of players, where a player is represented by a number of cards.
-    public Card[][] playerCards;
+    private Card[][] playerCards;
 
     // Current players turn
     private int currentPlayerToGuess;
@@ -235,5 +235,13 @@ public class Game {
 
         s += "" + cardNumber;
         return s;
+    }
+
+    public Card[][] getPlayerCards() {
+        return playerCards;
+    }
+
+    public int getCurrentPlayerToGuess() {
+        return currentPlayerToGuess;
     }
 }
