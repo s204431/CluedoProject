@@ -9,7 +9,7 @@ public class PossibleWorldModel {
     public List<Node> allNodes = new ArrayList<>();
     public Node trueWorld;
 
-    public PossibleWorldModel(int nPlayers, int nRooms, int nWeapons, int nPeople) {
+    public PossibleWorldModel(int nPlayers, int nRooms, int nWeapons, int nPeople, int[] trueWorld) {
         //Create all possible worlds.
         for (int i = 0; i < nRooms; i++) {
             for (int j = 0; j < nWeapons; j++) {
@@ -18,7 +18,11 @@ public class PossibleWorldModel {
                     predicates[0][i] = true;
                     predicates[1][j] = true;
                     predicates[2][k] = true;
-                    allNodes.add(new Node(nPlayers, predicates));
+                    Node node = new Node(nPlayers, predicates);
+                    allNodes.add(node);
+                    if (i == trueWorld[0] && j == trueWorld[1] && k == trueWorld[2]) {
+                        this.trueWorld = node;
+                    }
                 }
             }
         }
@@ -31,7 +35,7 @@ public class PossibleWorldModel {
             }
         }
         //Pick a random world as the true world.
-        trueWorld = allNodes.get(new Random().nextInt(allNodes.size()));
+        //trueWorld = allNodes.get(new Random().nextInt(allNodes.size()));
     }
 
     public boolean evaluateExpression(Expression expression) {
