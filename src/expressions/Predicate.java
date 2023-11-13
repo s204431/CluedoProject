@@ -9,4 +9,8 @@ public class Predicate extends Expression {
         this.number = number;
     }
 
+    public String toString() {
+        return "(p"+type+","+number+")";
+    }
+
 }

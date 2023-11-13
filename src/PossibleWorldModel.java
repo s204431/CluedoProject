@@ -1,15 +1,18 @@
 import expressions.*;
+import jdk.jfr.Event;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 public class PossibleWorldModel {
 
     public List<Node> allNodes = new ArrayList<>();
-    public Node trueWorld;
+    //public Node trueWorld;
+    private int nPlayers;
 
-    public PossibleWorldModel(int nPlayers, int nRooms, int nWeapons, int nPeople, int[] trueWorld) {
+    public PossibleWorldModel(int nPlayers, int nRooms, int nWeapons, int nPeople) {
         //Create all possible worlds.
         for (int i = 0; i < nRooms; i++) {
             for (int j = 0; j < nWeapons; j++) {
@@ -20,9 +23,9 @@ public class PossibleWorldModel {
                     predicates[2][k] = true;
                     Node node = new Node(nPlayers, predicates);
                     allNodes.add(node);
-                    if (i == trueWorld[0] && j == trueWorld[1] && k == trueWorld[2]) {
+                    /*if (i == trueWorld[0] && j == trueWorld[1] && k == trueWorld[2]) {
                         this.trueWorld = node;
-                    }
+                    }*/
                 }
             }
         }
@@ -34,12 +37,21 @@ public class PossibleWorldModel {
                 }
             }
         }
+        this.nPlayers = nPlayers;
         //Pick a random world as the true world.
         //trueWorld = allNodes.get(new Random().nextInt(allNodes.size()));
     }
 
-    public boolean evaluateExpression(Expression expression) {
-        return evaluateExpression(expression, trueWorld);
+    public boolean evaluateExpression(Expression expression, int[] trueWorld) {
+        for (Node node : allNodes) {
+            boolean[][] pred = node.predicateValues;
+            if (pred[0][trueWorld[0]] && pred[1][trueWorld[1]] && pred[2][trueWorld[2]]) {
+                if (evaluateExpression(expression, node)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private boolean evaluateExpression(Expression expression, Node node) {
@@ -60,10 +72,13 @@ public class PossibleWorldModel {
             return true;
         }
         else if (expression instanceof Not) {
-            return !evaluateExpression(expression.operands[0]);
+            return !evaluateExpression(expression.operands[0], node);
         }
         else if (expression instanceof Predicate p) {
             return node.predicateValues[p.type][p.number];
+        }
+        else if (expression instanceof Value v) {
+            return v.value;
         }
         else if (expression instanceof Knows k) {
             for (Node node1 : node.edges[k.agentIndex]) {
@@ -109,11 +124,54 @@ public class PossibleWorldModel {
 
     }
 
+    //Perform a product update with a given event.
+    public void productUpdate(EventModel event, int[] trueWorld) {
+        List<Node> newNodes = new ArrayList<>();
+        for (int i = 0; i < allNodes.size(); i++) {
+            for (int j = 0; j < event.allNodes.size(); j++) {
+                Node node = allNodes.get(i);
+                EventModel.Node eventNode = event.allNodes.get(j);
+                if (evaluateExpression(event.allNodes.get(j).pre, allNodes.get(i))) {
+                    Node newNode = new Node(nPlayers, node.predicateValues);
+                    newNode.eventNode = eventNode;
+                    newNode.oldNode = node;
+                    newNodes.add(newNode);
+                    /*if (trueWorld == node && event.trueWorld == eventNode) {
+                        trueWorld = newNode;
+                    }*/
+                }
+            }
+        }
+        boolean[] hasEdge = new boolean[newNodes.size()];
+        for (int i = 0; i < newNodes.size(); i++) {
+            Node node1 = newNodes.get(i);
+            for (int j = 0; j < newNodes.size(); j++) {
+                Node node2 = newNodes.get(j);
+                for (int k = 0; k < nPlayers; k++) {
+                    if (node1.eventNode.edges[k].contains(node2.eventNode) && node1.oldNode.edges[k].contains(node2.oldNode)) {
+                        node1.edges[k].add(node2);
+                        hasEdge[i] = true;
+                        hasEdge[j] = true;
+                    }
+                }
+            }
+        }
+        allNodes = new ArrayList<>();
+        for (int i = 0; i < newNodes.size(); i++) {
+            Node node = newNodes.get(i);
+            if (hasEdge[i] || Arrays.equals(trueWorld, node.predicatesAsInts())) {
+                allNodes.add(newNodes.get(i));
+            }
+        }
+    }
 
     public static class Node {
         private List<Node>[] edges;
         private boolean[][] predicateValues;
         private boolean markedForRemoval = false;
+
+        public EventModel.Node eventNode; //Used for product updates.
+        public Node oldNode; //Used for product updates.
 
         public Node(int nPlayers, boolean[][] predicateValues) {
             edges = new List[nPlayers];
