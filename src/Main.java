@@ -1,4 +1,6 @@
 import cluedo.Card;
+import cluedo.Game;
+import cluedo.UI;
 import expressions.*;
 import jdk.jfr.Event;
 
@@ -30,5 +32,7 @@ public class Main {
         System.out.println(ai.model.allNodes.size());
         ai.wasShownCard(new Card(0, 2), 1);
         System.out.println(ai.model.allNodes.size());
+
+        new UI(new Game());
     }
 }

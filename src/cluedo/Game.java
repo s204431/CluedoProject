@@ -173,10 +173,15 @@ public class Game {
         Collections.shuffle(allPlayerCards);
 
         // Assign the shuffled cards to the players.
-        for (int i = 0; i < N_PLAYERS; i++) {
-            for (int j = 0; j < N_PLAYER_CARDS; j++) {
-                playerCards[i][j] = allPlayerCards.get(i * N_PLAYERS + j);
+        int cardCounter = 0;
+        int playerCounter = 0;
+        while (cardCounter < allPlayerCards.size()) {
+            while (playerCounter < N_PLAYERS) {
+                playerCards[playerCounter][cardCounter % N_PLAYER_CARDS] = allPlayerCards.get(cardCounter);
+                playerCounter++;
+                cardCounter++;
             }
+            playerCounter = 0;
         }
     }
 
