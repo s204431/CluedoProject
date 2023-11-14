@@ -249,4 +249,9 @@ public class Game {
     public int getCurrentPlayerToGuess() {
         return currentPlayerToGuess;
     }
+
+    //For testing.
+    public Card[] getMurdererCards() {
+        return murdererCards;
+    }
 }

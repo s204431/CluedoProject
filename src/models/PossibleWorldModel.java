@@ -1,10 +1,11 @@
+package models;
+
 import expressions.*;
-import jdk.jfr.Event;
+import models.EventModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 public class PossibleWorldModel {
 
@@ -40,6 +41,11 @@ public class PossibleWorldModel {
         this.nPlayers = nPlayers;
         //Pick a random world as the true world.
         //trueWorld = allNodes.get(new Random().nextInt(allNodes.size()));
+    }
+
+    private PossibleWorldModel(List<Node> allNodes, int nPlayers) {
+        this.allNodes = allNodes;
+        this.nPlayers = nPlayers;
     }
 
     public boolean evaluateExpression(Expression expression, int[] trueWorld) {
@@ -163,6 +169,35 @@ public class PossibleWorldModel {
                 allNodes.add(newNodes.get(i));
             }
         }
+    }
+
+    public PossibleWorldModel copy() {
+        List<Node> allNodesCopy = new ArrayList<>();
+        for (int i = 0; i < allNodes.size(); i++) {
+            Node oldNode = allNodes.get(i);
+            boolean[][] predicateValues = new boolean[oldNode.predicateValues.length][];
+            for (int j = 0; j < predicateValues.length; j++) {
+                predicateValues[j] = new boolean[oldNode.predicateValues[j].length];
+                for (int k = 0; k < predicateValues[j].length; k++) {
+                    predicateValues[j][k] = oldNode.predicateValues[j][k];
+                }
+            }
+            Node node = new Node(nPlayers, predicateValues);
+            allNodesCopy.add(node);
+        }
+        for (int i = 0; i < allNodes.size(); i++) {
+            List<Node>[] edges = new List[nPlayers];
+            List<Node>[] oldEdges = allNodes.get(i).edges;
+            for (int j = 0; j < nPlayers; j++) {
+                edges[j] = new ArrayList<>();
+                for (Node node : oldEdges[j]) {
+                    int nodeIndex = allNodes.indexOf(node);
+                    edges[j].add(allNodesCopy.get(nodeIndex));
+                }
+            }
+            allNodesCopy.get(i).edges = edges;
+        }
+        return new PossibleWorldModel(allNodesCopy, nPlayers);
     }
 
     public static class Node {

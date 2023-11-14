@@ -1,4 +1,8 @@
+package ai;
+
 import cluedo.Card;
+
+import java.util.ArrayList;
 
 public abstract class AI {
 
@@ -8,7 +12,7 @@ public abstract class AI {
     protected int nRooms;
     protected int nWeapons;
     protected int nPeople;
-    protected int[] trueWorld;
+    public int[] trueWorld;
 
     public AI(Card[] cards, int playerIndex, int nPlayers, int nRooms, int nWeapons, int nPeople, int[] trueWorld) {
         this.cards = cards;
@@ -31,6 +35,10 @@ public abstract class AI {
 
     public void otherPlayersShownCard(Card[] possibleCardsShown, int otherPlayer1, int otherPlayer2) {
 
+    }
+
+    public Card showCard(int nextPlayer, ArrayList<Card> matchingCards) {
+        return null;
     }
 
 }
