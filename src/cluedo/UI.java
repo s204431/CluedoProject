@@ -5,9 +5,9 @@ import java.awt.*;
 
 public class UI extends JPanel {
     public static final int CARD_WIDTH = 100;
-    public static final int CARD_HEIGHT = 200;
-    public static final int SMALL_CARD_WIDTH = 75;
-    public static final int SMALL_CARD_HEIGHT = 125;
+    public static final int CARD_HEIGHT = 150;
+    public static final int SMALL_CARD_WIDTH = 80;
+    public static final int SMALL_CARD_HEIGHT = 120;
 
     // Colors for cards based on card type
     public static final Color[] cardColors = { new Color(0, 0, 255), new Color(200, 0, 0), new Color(0, 100, 0) };
@@ -51,13 +51,14 @@ public class UI extends JPanel {
         g2.setColor(Color.BLACK);
         int x1 = getWidth() * 4 / 9;
         g2.drawLine(x1, 0, x1, getHeight());
+        g2.drawLine(0, getHeight() * 2 / 3, x1, getHeight() * 2 / 3);
         g2.drawLine(x1, getHeight() / 3, getWidth(), getHeight() / 3);
         g2.drawLine(x1, getHeight() * 2 / 3, getWidth(), getHeight() * 2 / 3);
 
         // Paint current player text
         int currentPlayer = game.getCurrentPlayerToGuess();
-        g2.setFont(new Font("Arial Black", Font.PLAIN, 50));
-        String playerText = "Player " + (currentPlayer + 1);
+        g2.setFont(new Font("Arial Black", Font.PLAIN, 40));
+        String playerText = "Player " + (currentPlayer + 1) + " (guesser)";
         int playerTextWidth = g2.getFontMetrics().stringWidth(playerText);
         g2.setColor(Color.BLACK);
         g2.drawString(playerText, 50 + (20 + CARD_WIDTH * 3) / 2 - playerTextWidth / 2, 75);
@@ -88,6 +89,42 @@ public class UI extends JPanel {
             textWidth = g.getFontMetrics().stringWidth(text);
             g2.setColor(Color.BLACK);
             g2.drawString(text, x + CARD_WIDTH / 2 - textWidth / 2, y + CARD_HEIGHT / 10);
+        }
+
+        // Paint murder text
+        g2.setFont(new Font("Arial Black", Font.PLAIN, 25));
+        String murderText = "Murderer";
+        int murderTextWidth = g2.getFontMetrics().stringWidth(murderText);
+        g2.setColor(Color.BLACK);
+        g2.drawString(murderText, 50 + (20 + CARD_WIDTH * 3) / 2 - murderTextWidth / 2, 500);
+
+        // Paint murder cards
+        Card[] murderCards = game.getMurdererCards();
+        for (int i = 0; i < murderCards.length; i++) {
+
+            // Draw card outline
+            int x = 50 + (20 + SMALL_CARD_WIDTH) * (i % 3);
+            int y = 75 + 225 * 2;
+            g2.setColor(Color.LIGHT_GRAY);
+            g2.fillRect(x, y, SMALL_CARD_WIDTH, SMALL_CARD_HEIGHT);
+            g2.setStroke(new BasicStroke(4));
+            g2.setColor(Color.BLACK);
+            g2.drawRect(x, y, SMALL_CARD_WIDTH, SMALL_CARD_HEIGHT);
+
+            // Draw card text
+            g.setFont(new Font("Arial Black", Font.PLAIN, 14));
+            Card card = murderCards[i];
+            String text = Card.cardNames[card.getCardType()][card.getCardNumber()];
+            int textWidth = g2.getFontMetrics().stringWidth(text);
+            g2.setColor(cardColors[card.getCardType()]);
+            g2.drawString(text, x + SMALL_CARD_WIDTH / 2 - textWidth / 2, y + SMALL_CARD_HEIGHT / 2);
+
+            // Draw card type text
+            g.setFont(new Font("Arial", Font.PLAIN, 14));
+            text = cardTypeStrings[card.getCardType()];
+            textWidth = g.getFontMetrics().stringWidth(text);
+            g2.setColor(Color.BLACK);
+            g2.drawString(text, x + SMALL_CARD_WIDTH / 2 - textWidth / 2, y + SMALL_CARD_HEIGHT / 10);
         }
 
         // Paint rest of players cards
