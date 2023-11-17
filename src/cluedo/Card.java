@@ -1,6 +1,13 @@
 package cluedo;
 
 public class Card {
+    // Names for rooms, weapons and people respectively.
+    public static final String[][] cardNames = {
+            { "Hall", "Lounge", "Kitchen", "Entrance", "Ballroom", "Dinette", "Bedroom", "Library", "Study" },
+            { "Stick", "Dagger", "Pipe", "Revolver", "Rope", "Spanner", "Uzi", "Sword", "Crowbar" },
+            { "Rose", "Lauren", "Jones", "Bond", "Scarlet", "Bobby", "Black", "White", "Ben" }
+    };
+
     private int cardType;
     private int cardNumber;
 

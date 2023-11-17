@@ -15,7 +15,8 @@ public class SimpleAI extends AI {
     public SimpleAI(Card[] cards, int playerIndex, int nPlayers, int nRooms, int nWeapons, int nPeople, int[] trueWorld) {
         super(cards, playerIndex, nPlayers, nRooms, nWeapons, nPeople, trueWorld);
         //Initialize stillPossibleCards.
-        stillPossibleCards = new List[3];
+        stillPossibleCards = new List[] { new ArrayList<>(), new ArrayList<>(), new ArrayList<>() };
+
         for (int i = 0; i < nRooms; i++) {
             stillPossibleCards[0].add(i);
         }
@@ -33,7 +34,7 @@ public class SimpleAI extends AI {
 
     public void wasShownCard(Card card, int otherPlayer) {
         //Rule out given card.
-        stillPossibleCards[card.getCardType()].remove((Integer)card.getCardNumber());
+        stillPossibleCards[card.getCardType()].remove((Integer) card.getCardNumber());
     }
     //Returns {isFinal, room, weapon, person}, where isFinal tells whether the move is final (1) or not (0).
     public int[] makeMove() {
@@ -49,7 +50,7 @@ public class SimpleAI extends AI {
         return new int[] {0, card1, card2, card3};
     }
 
-    public Card showCard(int nextPlayer, ArrayList<Card> matchingCards) {
+    public Card showCard(int playerToShowCardTo, ArrayList<Card> matchingCards) {
         //Show a random card.
         return matchingCards.get(new Random().nextInt(matchingCards.size()));
     }

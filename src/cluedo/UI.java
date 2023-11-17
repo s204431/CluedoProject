@@ -9,13 +9,6 @@ public class UI extends JPanel {
     public static final int SMALL_CARD_WIDTH = 75;
     public static final int SMALL_CARD_HEIGHT = 125;
 
-    // Names for rooms, weapons and people respectively.
-    public static final String[][] cardNames = {
-            { "Hall", "Lounge", "Kitchen", "Entrance", "Ballroom", "Dinette", "Bedroom", "Library", "Study" },
-            { "Stick", "Dagger", "Pipe", "Revolver", "Rope", "Spanner", "Uzi", "Sword", "Crowbar" },
-            { "Rose", "Lauren", "Jones", "Bond", "Scarlet", "Bobby", "Black", "White", "Ben" }
-    };
-
     // Colors for cards based on card type
     public static final Color[] cardColors = { new Color(0, 0, 255), new Color(200, 0, 0), new Color(0, 100, 0) };
 
@@ -84,7 +77,7 @@ public class UI extends JPanel {
             // Draw card text
             g.setFont(new Font("Arial Black", Font.PLAIN, 20));
             Card card = playerCards[currentPlayer][i];
-            String text = cardNames[card.getCardType()][card.getCardNumber()];
+            String text = Card.cardNames[card.getCardType()][card.getCardNumber()];
             int textWidth = g2.getFontMetrics().stringWidth(text);
             g2.setColor(cardColors[card.getCardType()]);
             g2.drawString(text, x + CARD_WIDTH / 2 - textWidth / 2, y + CARD_HEIGHT / 2);
@@ -126,7 +119,7 @@ public class UI extends JPanel {
 
                 // Draw card text
                 Card card = playerCards[i][j];
-                String text = cardNames[card.getCardType()][card.getCardNumber()];
+                String text = Card.cardNames[card.getCardType()][card.getCardNumber()];
                 int textWidth = g.getFontMetrics().stringWidth(text);
                 g2.setColor(cardColors[card.getCardType()]);
                 g2.drawString(text, x + SMALL_CARD_WIDTH / 2 - textWidth / 2, y + SMALL_CARD_HEIGHT / 2);

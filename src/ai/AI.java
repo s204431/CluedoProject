@@ -37,7 +37,7 @@ public abstract class AI {
 
     }
 
-    public Card showCard(int nextPlayer, ArrayList<Card> matchingCards) {
+    public Card showCard(int playerToShowCardTo, ArrayList<Card> matchingCards) {
         return null;
     }
 

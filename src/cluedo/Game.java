@@ -1,5 +1,7 @@
 package cluedo;
 
+import ai.AI;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -27,45 +29,69 @@ public class Game {
     private int currentPlayerToGuess;
     private boolean[] activePlayers;
 
+    // Array of AI players
+    private AI[] AIPlayers = { null, null, null, null };
+
     private boolean gameOver;
+    private int round;
 
     // Constructor for a game state.
     public Game() {
         resetGame();
-        //printMurdererCards();
-        //printPlayerCards();
     }
 
     // Makes a guess for a player.
-    public void makeGuess(Card[] guessedCards, boolean finalGuess) {
+    public ValueHolder makeGuess(Card[] guessedCards, boolean finalGuess) {
+        int guessedRoom = guessedCards[0].getCardNumber();
+        int guessedWeapon = guessedCards[1].getCardNumber();
+        int guessedPerson = guessedCards[2].getCardNumber();
+
+        int murderRoom = murdererCards[0].getCardNumber();
+        int murderWeapon = murdererCards[1].getCardNumber();
+        int murderPerson = murdererCards[2].getCardNumber();
+
+        // Print round and guess
+        System.out.println(
+                "\n" +
+                "Round: " + round++ + "\n" +
+                "Player " + (currentPlayerToGuess+1) + " has guessed " +
+                Card.cardNames[0][guessedRoom] + ", " +
+                Card.cardNames[1][guessedWeapon] + ", " +
+                Card.cardNames[2][guessedPerson] + "."
+        );
+
         // Player wins or loses if guess is final.
         if (finalGuess) {
-            int guessedRoom = guessedCards[0].getCardNumber();
-            int guessedWeapon = guessedCards[1].getCardNumber();
-            int guessedPerson = guessedCards[2].getCardNumber();
+            System.out.println("Guess is final");
 
-            int murderRoom = murdererCards[0].getCardNumber();
-            int murderWeapon = murdererCards[1].getCardNumber();
-            int murderPerson = murdererCards[2].getCardNumber();
-
-            // Right final guess
+            // Check if guess is right or wrong
             if (guessedRoom == murderRoom && guessedWeapon == murderWeapon && guessedPerson == murderPerson) {
                 gameOver = true;
-            } else {    // Wrong final guess
+                System.out.println("PLAYER " + (currentPlayerToGuess+1) + " WINS!");
+            } else {    // Wrong
                 activePlayers[currentPlayerToGuess] = false;
+                System.out.println("Player " + (currentPlayerToGuess+1) + " has lost due to a wrong final guess.");
             }
+
+            // TODO: Do people show cards when guess is final?
+            return null;
 
         } else {    // Not a final guess
 
             // The next player with a card matching the guess has to show one of those cards.
-            int nextPlayer = currentPlayerToGuess;
+            int playerToShowCard = currentPlayerToGuess;
             ArrayList<Card> matchingCards = new ArrayList<>();
             while (matchingCards.size() == 0) {
-                nextPlayer = getNextPlayer(nextPlayer);
+                playerToShowCard = getNextPlayer(playerToShowCard);
+
+                // Jump out if no other player had matching cards
+                if (playerToShowCard == currentPlayerToGuess) {
+                    break;
+                }
 
                 // Check if next player has one or more cards matching the guess.
                 for (int i = 0; i < N_PLAYER_CARDS; i++) {
-                    Card card = playerCards[nextPlayer][i];
+                    Card card = playerCards[playerToShowCard][i];
                     int type = card.getCardType();
                     int number = card.getCardNumber();
                     if (guessedCards[type].getCardNumber() == number) {
@@ -74,20 +100,44 @@ public class Game {
                 }
             }
 
-            // Make player choose between matching cards.
-            Card cardToShow = showCard(nextPlayer, matchingCards);
+            // If only current player has matching cards, skip turn
+            if (playerToShowCard == currentPlayerToGuess) {
+                System.out.println("No one showed a card.");
+                return new ValueHolder(currentPlayerToGuess, playerToShowCard, null, guessedCards);
+            }
 
-            // TODO: Show card to other players
-            System.out.println("Shown card: " + cardToString(cardToShow));
+            Card cardToShow;
+            if (matchingCards.size() == 1) {
+                cardToShow = matchingCards.get(0);
+            } else {    // More than one matching card
+
+                // Check if player is human or AI
+                if (AIPlayers[playerToShowCard] == null) {
+
+                    // Make player choose between matching cards.
+                    cardToShow = showCard(playerToShowCard, matchingCards);
+
+                } else {    // Player is AI
+
+                    // Make AI choose between matching cards
+                    cardToShow = AIPlayers[playerToShowCard].showCard(currentPlayerToGuess, matchingCards);
+                }
+            }
+
+            // Show card
+            System.out.println("Player " + (playerToShowCard+1) + " has shown the card " + Card.cardNames[cardToShow.getCardType()][cardToShow.getCardNumber()] + " to player " + (currentPlayerToGuess+1));
 
             // Change next player to move.
+            int temp = currentPlayerToGuess;
             currentPlayerToGuess = getNextPlayer(currentPlayerToGuess);
+
+            return new ValueHolder(temp, playerToShowCard, cardToShow, guessedCards);
         }
     }
 
     // Returns the card that the player wants to show.
     public Card showCard(int nextPlayer, ArrayList<Card> matchingCards) {
-        System.out.println("Player " + nextPlayer + " has to show a card. Choose between the following cards:");
+        System.out.println("Player " + (nextPlayer+1) + " has to show a card. Choose between the following cards:");
         for (int i = 0; i < matchingCards.size(); i++) {
             System.out.print("Card " + (i+1) + ": " + cardToString(matchingCards.get(i)) + "   ");
         }
@@ -138,6 +188,7 @@ public class Game {
         murdererCards = new Card[3];
         playerCards = new Card[N_PLAYERS][N_PLAYER_CARDS];
         gameOver = false;
+        round = 1;
 
         // Choose random murderer.
         Random random = new Random();
@@ -227,6 +278,10 @@ public class Game {
 
     // Returns the string representation of a card.
     public String cardToString(Card card) {
+        if (card == null) {
+            return "null";
+        }
+
         String s = "";
         int cardType = card.getCardType();
         int cardNumber = card.getCardNumber();
@@ -242,6 +297,7 @@ public class Game {
         return s;
     }
 
+    // Getters and setters
     public Card[][] getPlayerCards() {
         return playerCards;
     }
@@ -253,5 +309,13 @@ public class Game {
     //For testing.
     public Card[] getMurdererCards() {
         return murdererCards;
+    }
+
+    public void setAIPlayers(AI[] AIPlayers) {
+        this.AIPlayers = AIPlayers;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
     }
 }

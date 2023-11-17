@@ -1,5 +1,6 @@
 import ai.EpistemicAI;
 import cluedo.Card;
+import cluedo.Controller;
 import cluedo.Game;
 import cluedo.UI;
 import expressions.*;
@@ -52,7 +53,11 @@ public class Main {
 
         testCase1();
 
-        new UI(new Game());
+        
+        Game game = new Game();
+        UI ui = new UI(game);
+        Controller controller = new Controller(game, ui);
+        controller.playAIGame();
     }
 
     private static void testCase1() {
