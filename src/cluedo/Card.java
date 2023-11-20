@@ -23,4 +23,15 @@ public class Card {
     public int getCardNumber() {
         return cardNumber;
     }
+
+    public boolean equals(Object o) {
+        if (!(o instanceof Card)) {
+            return false;
+        }
+        return cardType == ((Card) o).cardType && cardNumber == ((Card) o).cardNumber;
+    }
+
+    public String toString() {
+        return cardNames[cardType][cardNumber];
+    }
 }

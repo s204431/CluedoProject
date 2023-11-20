@@ -5,6 +5,8 @@ import expressions.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
 import models.PossibleWorldModel;
 import models.EventModel;
 
@@ -14,6 +16,8 @@ public class EpistemicAI extends AI {
     public PossibleWorldModel model;
     public List<Integer> otherPlayers = new ArrayList<>();
     public List<Card>[] sharedInformation; //Shared information with each other players.
+    private int[] lastMove = null;
+    private boolean lastMoveFinal = false;
 
     public EpistemicAI(Card[] cards, int playerIndex, int nPlayers, int nRooms, int nWeapons, int nPeople, int[] trueWorld) {
         super(cards, playerIndex, nPlayers, nRooms, nWeapons, nPeople, trueWorld);
@@ -56,11 +60,6 @@ public class EpistemicAI extends AI {
         event.createEdge(trueNode, trueNode, false);
         model.productUpdate(event, trueWorld);
         baseModel.productUpdate(event, trueWorld);
-    }
-
-    //Returns {isFinal, room, weapon, person}, where isFinal tells whether the move is final (1) or not (0).
-    public int[] makeMove() {
-        return null;
     }
 
     //Called when another AI shows this AI a card OR the other way around.
@@ -143,6 +142,146 @@ public class EpistemicAI extends AI {
         event.createEdge(case2, case2, false, new int[] {otherPlayer1, otherPlayer2});
         event.createEdge(case3, case3, false, new int[] {otherPlayer1, otherPlayer2});
         model.productUpdate(event, trueWorld);*/
+    }
+
+    public void everyoneWasShownCard(Card card) {
+        Expression publicAnnouncement = new Not(new Predicate(card.getCardType(), card.getCardNumber()));
+        model.publicAnnouncement(publicAnnouncement);
+        baseModel.publicAnnouncement(publicAnnouncement);
+    }
+
+    //Returns {isFinal, room, weapon, person}, where isFinal tells whether the move is final (1) or not (0).
+    public int[] makeMove() {
+        if (lastMoveFinal) {
+            return new int[] {1, lastMove[0], lastMove[1], lastMove[2]};
+        }
+        int[] knownSolution = getKnownSolution();
+        if (knownSolution[0] >= 0 && knownSolution[1] >= 0 && knownSolution[2] >= 0) {
+            return new int[] {1, knownSolution[0], knownSolution[1], knownSolution[2]};
+        }
+        //Find out which cards are considered possible.
+        List<Integer>[] possibleCards = new List[3];
+        for (int i = 0; i < 3; i++) {
+            possibleCards[i] = new ArrayList<>();
+            if (knownSolution[i] >= 0) {
+                possibleCards[i].add(knownSolution[i]);
+                continue;
+            }
+            int amount =  i == 0 ? nRooms : (i == 1 ? nWeapons : nPeople);
+            for (int j = 0; j < amount; j++) {
+                if (!model.evaluateExpression(new Knows(playerIndex, new Not(new Predicate(i, j))), trueWorld)) {
+                    possibleCards[i].add(j);
+                }
+            }
+        }
+        Random r = new Random();
+        int room = possibleCards[0].get(r.nextInt(possibleCards[0].size()));
+        int weapon = possibleCards[1].get(r.nextInt(possibleCards[1].size()));
+        int person = possibleCards[2].get(r.nextInt(possibleCards[2].size()));
+        lastMove = new int[] {room, weapon, person};
+        return new int[] {0, room, weapon, person};
+    }
+
+    //Returns {room, weapon, person} if known. Those not known are -1.
+    private int[] getKnownSolution() {
+        int knownRoom = -1;
+        int knownWeapon = -1;
+        int knownPerson = -1;
+        for (int i = 0; i < nRooms; i++) {
+            if (model.evaluateExpression(new Knows(playerIndex, new Predicate(0, i)), trueWorld)) {
+                knownRoom = i;
+                break;
+            }
+        }
+        for (int i = 0; i < nWeapons; i++) {
+            if (model.evaluateExpression(new Knows(playerIndex, new Predicate(1, i)), trueWorld)) {
+                knownWeapon = i;
+                break;
+            }
+        }
+        for (int i = 0; i < nPeople; i++) {
+            if (model.evaluateExpression(new Knows(playerIndex, new Predicate(2, i)), trueWorld)) {
+                knownPerson = i;
+                break;
+            }
+        }
+        return new int[] {knownRoom, knownWeapon, knownPerson};
+    }
+
+    //Shows a card that the player already knows if possible. Otherwise, chooses random card.
+    public Card showCard(int playerToShowCardTo, ArrayList<Card> matchingCards) {
+        List<Card> knownByOtherPlayer = new ArrayList<>();
+        for (Card card : matchingCards) {
+            if (model.evaluateExpression(new Knows(playerToShowCardTo, new Not(new Predicate(card.getCardType(), card.getCardNumber()))), trueWorld)) {
+                knownByOtherPlayer.add(card);
+            }
+        }
+        if (!knownByOtherPlayer.isEmpty()) {
+            List<Card> possibilities = getMaxKnownCards(knownByOtherPlayer);
+            return possibilities.get(new Random().nextInt(possibilities.size()));
+        }
+        List<Card> possibilities = getMaxKnownCards(matchingCards);
+        return possibilities.get(new Random().nextInt(possibilities.size()));
+    }
+
+    //Finds the cards that are already known by the most other players.
+    private List<Card> getMaxKnownCards(List<Card> cards) {
+        int[] nKnows = new int[cards.size()];
+        for (int i = 0; i < cards.size(); i++) {
+            Card card = cards.get(i);
+            for (int j = 0; j < nPlayers; j++) {
+                if (j != playerIndex && model.evaluateExpression(new Not(new Predicate(card.getCardType(), card.getCardNumber())), trueWorld)) {
+                    nKnows[i]++;
+                }
+            }
+        }
+        int max = -1;
+        for (int i = 0; i < nKnows.length; i++) {
+            if (nKnows[i] > max) {
+                max = nKnows[i];
+            }
+        }
+        List<Card> possibilities = new ArrayList<>();
+        for (int i = 0; i < nKnows.length; i++) {
+            if (nKnows[i] == max) {
+                possibilities.add(cards.get(i));
+            }
+        }
+        return possibilities;
+    }
+
+    public Card showEveryoneCard(List<Card> cards) {
+        int[] nKnown = new int[cards.size()];
+        for (int i = 0; i < cards.size(); i++) {
+            for (int j = 0; j < nPlayers; j++) {
+                if (j != playerIndex && model.evaluateExpression(new Knows(j, new Not(new Predicate(cards.get(i).getCardType(), cards.get(i).getCardNumber()))), trueWorld)) {
+                    nKnown[i]++;
+                }
+            }
+        }
+        int max = -1;
+        for (int i = 0; i < nKnown.length; i++) {
+            if (nKnown[i] > max) {
+                max = nKnown[i];
+            }
+        }
+        List<Card> cardsToChooseFrom = new ArrayList<>();
+        for (int i = 0; i < cards.size(); i++) {
+            if (nKnown[i] == max) {
+                cardsToChooseFrom.add(cards.get(i));
+            }
+        }
+        return cardsToChooseFrom.get(new Random().nextInt(cardsToChooseFrom.size()));
+    }
+
+    //Indicates that last time this player made a move no one showed a card.
+    public void noOneShowedCard() {
+        for (Card card : cards) {
+            if (card.getCardNumber() == lastMove[card.getCardType()]) {
+                return;
+            }
+        }
+        lastMoveFinal = true;
     }
 
 

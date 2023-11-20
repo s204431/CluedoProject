@@ -1,6 +1,9 @@
 package ai;
 
 import cluedo.Card;
+import expressions.Expression;
+import expressions.Not;
+import expressions.Predicate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +41,11 @@ public class SimpleAI extends AI {
         //Rule out given card.
         stillPossibleCards[card.getCardType()].remove((Integer) card.getCardNumber());
     }
+
+    public void everyoneWasShownCard(Card card) {
+        stillPossibleCards[card.getCardType()].remove((Integer)card.getCardNumber());
+    }
+
     //Returns {isFinal, room, weapon, person}, where isFinal tells whether the move is final (1) or not (0).
     public int[] makeMove() {
         //Check if we know the correct answer.
@@ -59,6 +67,10 @@ public class SimpleAI extends AI {
     public Card showCard(int playerToShowCardTo, ArrayList<Card> matchingCards) {
         //Show a random card.
         return matchingCards.get(new Random().nextInt(matchingCards.size()));
+    }
+
+    public Card showEveryoneCard(List<Card> cards) {
+        return cards.get(new Random().nextInt(cards.size()));
     }
 
     //Indicates that last time this player made a move no one showed a card.

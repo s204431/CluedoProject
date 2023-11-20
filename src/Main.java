@@ -51,13 +51,15 @@ public class Main {
         System.out.println(ai.model.evaluateExpression(new Knows(ai.playerIndex, new And(new Predicate[] {new Predicate(0, 0), new Predicate(1, 0), new Predicate(2, 0)})), ai.trueWorld));
         System.out.println(ai.model.evaluateExpression(new Knows(1, new And(new Predicate[] {new Predicate(0, 0), new Predicate(1, 0), new Predicate(2, 0)})), ai.trueWorld));
 
-        testCase1();
+        //testCase1();
 
-        
+        testWinRates(1000);
+
+        /*
         Game game = new Game();
         UI ui = new UI(game);
         Controller controller = new Controller(game, ui);
-        controller.playAIGame();
+        controller.playAIGame();*/
     }
 
     private static void testCase1() {
@@ -84,6 +86,22 @@ public class Main {
         }
         else {
             System.out.println("Failed test case 1");
+        }
+    }
+
+    private static void testWinRates(int nGames) {
+        int[] wins = new int[Game.N_PLAYERS];
+        for (int i = 0; i < nGames; i++) {
+            System.out.println("Game " + (i+1) + " out of " + nGames + ":");
+            Game game = new Game();
+            Controller controller = new Controller(game, null);
+            controller.playAIGame();
+            wins[game.getWinningPlayer()]++;
+        }
+        System.out.println("Results (" + nGames + " games):");
+        int sum = 0;
+        for (int i = 0; i < wins.length; i++) {
+            System.out.println("Player " + (i+1) + ": " + wins[i] + " wins (" + ((int)((wins[i]/(double)nGames)*100)) + "%)");
         }
     }
 }

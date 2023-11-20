@@ -3,6 +3,7 @@ package ai;
 import cluedo.Card;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AI {
 
@@ -40,6 +41,10 @@ public abstract class AI {
     public Card showCard(int playerToShowCardTo, ArrayList<Card> matchingCards) {
         return null;
     }
+
+    public Card showEveryoneCard(List<Card> cards) {return null;}
+
+    public void everyoneWasShownCard(Card card) {}
 
     //Indicates that last time this player made a move no one showed a card.
     public void noOneShowedCard() {}

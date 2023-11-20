@@ -34,6 +34,7 @@ public class Game {
 
     private boolean gameOver;
     private int round;
+    private int winningPlayer = -1;
 
     // Constructor for a game state.
     public Game() {
@@ -67,6 +68,7 @@ public class Game {
             // Check if guess is right or wrong
             if (guessedRoom == murderRoom && guessedWeapon == murderWeapon && guessedPerson == murderPerson) {
                 gameOver = true;
+                winningPlayer = currentPlayerToGuess;
                 System.out.println("PLAYER " + (currentPlayerToGuess+1) + " WINS!");
             } else {    // Wrong
                 activePlayers[currentPlayerToGuess] = false;
@@ -182,7 +184,7 @@ public class Game {
     // Resets the game state by choosing a murderer and assigning cards to the players.
     public void resetGame() {
         // Initialize player to move, active players, murderer's cards and players' cards
-        currentPlayerToGuess = 0;
+        currentPlayerToGuess = new Random().nextInt(N_PLAYERS);
         activePlayers = new boolean[N_PLAYERS];
         for (int i = 0; i < N_PLAYERS; i++) {
             activePlayers[i] = true;
@@ -319,5 +321,9 @@ public class Game {
 
     public boolean isGameOver() {
         return gameOver;
+    }
+
+    public int getWinningPlayer() {
+        return winningPlayer;
     }
 }
