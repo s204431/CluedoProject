@@ -103,7 +103,9 @@ public class Game {
             // If only current player has matching cards, skip turn
             if (playerToShowCard == currentPlayerToGuess) {
                 System.out.println("No one showed a card.");
-                return new ValueHolder(currentPlayerToGuess, playerToShowCard, null, guessedCards);
+                int temp = currentPlayerToGuess;
+                currentPlayerToGuess = getNextPlayer(currentPlayerToGuess);
+                return new ValueHolder(temp, playerToShowCard, null, guessedCards);
             }
 
             Card cardToShow;

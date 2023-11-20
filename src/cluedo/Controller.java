@@ -67,6 +67,9 @@ public class Controller {
                     }
                 }
             }
+            else if (response != null && AIPlayers[response.playerToSeeCard] != null) {
+                AIPlayers[response.playerToSeeCard].noOneShowedCard();
+            }
 
             // Update UI
             ui.repaint();

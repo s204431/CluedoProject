@@ -41,4 +41,7 @@ public abstract class AI {
         return null;
     }
 
+    //Indicates that last time this player made a move no one showed a card.
+    public void noOneShowedCard() {}
+
 }

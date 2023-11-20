@@ -11,6 +11,8 @@ public class SimpleAI extends AI {
     //Simple AI that simply keeps track of the cards that have been ruled out.
 
     public List<Integer>[] stillPossibleCards;
+    private int[] lastGuess = null;
+    boolean lastGuessFinal = false;
 
     public SimpleAI(Card[] cards, int playerIndex, int nPlayers, int nRooms, int nWeapons, int nPeople, int[] trueWorld) {
         super(cards, playerIndex, nPlayers, nRooms, nWeapons, nPeople, trueWorld);
@@ -42,16 +44,25 @@ public class SimpleAI extends AI {
         if (stillPossibleCards[0].size() == 1 && stillPossibleCards[1].size() == 1 && stillPossibleCards[2].size() == 1) {
             return new int[] {1, stillPossibleCards[0].get(0), stillPossibleCards[1].get(0), stillPossibleCards[2].get(0)};
         }
+        if (lastGuessFinal) {
+            return new int[] {1, lastGuess[0], lastGuess[1], lastGuess[2]};
+        }
         //Choose random cards from still possible cards since we do not know the correct answer.
         Random r = new Random();
         int card1 = stillPossibleCards[0].get(r.nextInt(stillPossibleCards[0].size()));
         int card2 = stillPossibleCards[1].get(r.nextInt(stillPossibleCards[1].size()));
         int card3 = stillPossibleCards[2].get(r.nextInt(stillPossibleCards[2].size()));
+        lastGuess = new int[] {card1, card2, card3};
         return new int[] {0, card1, card2, card3};
     }
 
     public Card showCard(int playerToShowCardTo, ArrayList<Card> matchingCards) {
         //Show a random card.
         return matchingCards.get(new Random().nextInt(matchingCards.size()));
+    }
+
+    //Indicates that last time this player made a move no one showed a card.
+    public void noOneShowedCard() {
+        lastGuessFinal = true;
     }
 }
