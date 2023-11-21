@@ -212,7 +212,7 @@ public class EpistemicAI extends AI {
     public Card showCard(int playerToShowCardTo, ArrayList<Card> matchingCards) {
         List<Card> knownByOtherPlayer = new ArrayList<>();
         for (Card card : matchingCards) {
-            if (model.evaluateExpression(new Knows(playerToShowCardTo, new Not(new Predicate(card.getCardType(), card.getCardNumber()))), trueWorld)) {
+            if (model.evaluateExpression(new Knows(playerIndex, new Knows(playerToShowCardTo, new Not(new Predicate(card.getCardType(), card.getCardNumber())))), trueWorld)) {
                 knownByOtherPlayer.add(card);
             }
         }
@@ -230,7 +230,7 @@ public class EpistemicAI extends AI {
         for (int i = 0; i < cards.size(); i++) {
             Card card = cards.get(i);
             for (int j = 0; j < nPlayers; j++) {
-                if (j != playerIndex && model.evaluateExpression(new Not(new Predicate(card.getCardType(), card.getCardNumber())), trueWorld)) {
+                if (j != playerIndex && model.evaluateExpression(new Knows(playerIndex, new Knows(j, new Not(new Predicate(card.getCardType(), card.getCardNumber())))), trueWorld)) {
                     nKnows[i]++;
                 }
             }
@@ -254,7 +254,7 @@ public class EpistemicAI extends AI {
         int[] nKnown = new int[cards.size()];
         for (int i = 0; i < cards.size(); i++) {
             for (int j = 0; j < nPlayers; j++) {
-                if (j != playerIndex && model.evaluateExpression(new Knows(j, new Not(new Predicate(cards.get(i).getCardType(), cards.get(i).getCardNumber()))), trueWorld)) {
+                if (j != playerIndex && model.evaluateExpression(new Knows(playerIndex, new Knows(j, new Not(new Predicate(cards.get(i).getCardType(), cards.get(i).getCardNumber())))), trueWorld)) {
                     nKnown[i]++;
                 }
             }
