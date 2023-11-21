@@ -76,7 +76,7 @@ public class UI extends JPanel {
             g2.drawRect(x, y, CARD_WIDTH, CARD_HEIGHT);
 
             // Draw card text
-            g.setFont(new Font("Arial Black", Font.PLAIN, 20));
+            g2.setFont(new Font("Arial Black", Font.PLAIN, 20));
             Card card = playerCards[currentPlayer][i];
             String text = Card.cardNames[card.getCardType()][card.getCardNumber()];
             int textWidth = g2.getFontMetrics().stringWidth(text);
@@ -84,9 +84,9 @@ public class UI extends JPanel {
             g2.drawString(text, x + CARD_WIDTH / 2 - textWidth / 2, y + CARD_HEIGHT / 2);
 
             // Draw card type text
-            g.setFont(new Font("Arial", Font.PLAIN, 15));
+            g2.setFont(new Font("Arial", Font.PLAIN, 15));
             text = cardTypeStrings[card.getCardType()];
-            textWidth = g.getFontMetrics().stringWidth(text);
+            textWidth = g2.getFontMetrics().stringWidth(text);
             g2.setColor(Color.BLACK);
             g2.drawString(text, x + CARD_WIDTH / 2 - textWidth / 2, y + CARD_HEIGHT / 10);
         }
@@ -112,7 +112,7 @@ public class UI extends JPanel {
             g2.drawRect(x, y, SMALL_CARD_WIDTH, SMALL_CARD_HEIGHT);
 
             // Draw card text
-            g.setFont(new Font("Arial Black", Font.PLAIN, 14));
+            g2.setFont(new Font("Arial Black", Font.PLAIN, 14));
             Card card = murderCards[i];
             String text = Card.cardNames[card.getCardType()][card.getCardNumber()];
             int textWidth = g2.getFontMetrics().stringWidth(text);
@@ -120,11 +120,11 @@ public class UI extends JPanel {
             g2.drawString(text, x + SMALL_CARD_WIDTH / 2 - textWidth / 2, y + SMALL_CARD_HEIGHT / 2);
 
             // Draw card type text
-            g.setFont(new Font("Arial", Font.PLAIN, 14));
+            g2.setFont(new Font("Arial", Font.PLAIN, 14));
             text = cardTypeStrings[card.getCardType()];
-            textWidth = g.getFontMetrics().stringWidth(text);
+            textWidth = g2.getFontMetrics().stringWidth(text);
             g2.setColor(Color.BLACK);
-            g2.drawString(text, x + SMALL_CARD_WIDTH / 2 - textWidth / 2, y + SMALL_CARD_HEIGHT / 10);
+            g2.drawString(text, x + SMALL_CARD_WIDTH / 2 - textWidth / 2, y + SMALL_CARD_HEIGHT / 8);
         }
 
         // Paint rest of players cards
@@ -146,7 +146,7 @@ public class UI extends JPanel {
             for (int j = 0; j < playerCards[i].length; j++) {
 
                 // Draw small card outline
-                g.setFont(new Font("Arial Black", Font.PLAIN, 14));
+                g2.setFont(new Font("Arial Black", Font.PLAIN, 14));
                 int x = 150 + (20 + CARD_WIDTH) * 3 + (15 + SMALL_CARD_WIDTH) * j;
                 int y = 75 + 225 * counter;
                 g2.setColor(Color.LIGHT_GRAY);
@@ -157,14 +157,14 @@ public class UI extends JPanel {
                 // Draw card text
                 Card card = playerCards[i][j];
                 String text = Card.cardNames[card.getCardType()][card.getCardNumber()];
-                int textWidth = g.getFontMetrics().stringWidth(text);
+                int textWidth = g2.getFontMetrics().stringWidth(text);
                 g2.setColor(cardColors[card.getCardType()]);
                 g2.drawString(text, x + SMALL_CARD_WIDTH / 2 - textWidth / 2, y + SMALL_CARD_HEIGHT / 2);
 
                 // Draw card type text
-                g.setFont(new Font("Arial", Font.PLAIN, 14));
+                g2.setFont(new Font("Arial", Font.PLAIN, 14));
                 text = cardTypeStrings[card.getCardType()];
-                textWidth = g.getFontMetrics().stringWidth(text);
+                textWidth = g2.getFontMetrics().stringWidth(text);
                 g2.setColor(Color.BLACK);
                 g2.drawString(text, x + SMALL_CARD_WIDTH / 2 - textWidth / 2, y + SMALL_CARD_HEIGHT / 8);
             }

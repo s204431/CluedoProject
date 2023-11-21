@@ -28,6 +28,7 @@ public class Game {
     // Current players turn
     private int currentPlayerToGuess;
     private boolean[] activePlayers;
+    private int inactivePlayerCount;
 
     // Array of AI players
     private AI[] AIPlayers = { null, null, null, null };
@@ -72,10 +73,16 @@ public class Game {
                 System.out.println("PLAYER " + (currentPlayerToGuess+1) + " WINS!");
             } else {    // Wrong
                 activePlayers[currentPlayerToGuess] = false;
+                inactivePlayerCount++;
                 System.out.println("Player " + (currentPlayerToGuess+1) + " has lost due to a wrong final guess.");
+
+                if (inactivePlayerCount == N_PLAYERS - 1) {
+                    gameOver = true;
+                    System.out.println("The game has ended due to all but one player making a wrong final guess.");
+                    System.out.println("PLAYER " + (getNextPlayer(currentPlayerToGuess)+1) + " WINS!");
+                }
             }
 
-            // TODO: Do people show cards when guess is final?
             return null;
 
         } else {    // Not a final guess
@@ -186,6 +193,7 @@ public class Game {
         // Initialize player to move, active players, murderer's cards and players' cards
         currentPlayerToGuess = new Random().nextInt(N_PLAYERS);
         activePlayers = new boolean[N_PLAYERS];
+        inactivePlayerCount = 0;
         for (int i = 0; i < N_PLAYERS; i++) {
             activePlayers[i] = true;
         }
