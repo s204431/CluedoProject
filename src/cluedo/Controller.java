@@ -44,7 +44,7 @@ public class Controller {
             int currentPlayer = game.getCurrentPlayerToGuess();
 
             //Ask everyone to show a card to everyone.
-            /*if (currentPlayer == firstPlayer) {
+            if (currentPlayer == firstPlayer) {
                 for (int i = 0; i < AIPlayers.length; i++) {
                     List<Card> cards = new ArrayList<>(Arrays.stream(game.getPlayerCards()[i]).toList());
                     cards.removeAll(cardsAlreadyShown[i]);
@@ -55,7 +55,7 @@ public class Controller {
                         AIPlayers[j].everyoneWasShownCard(shown);
                     }
                 }
-            }*/
+            }
 
             // Make player construct a guess
             int[] guess = AIPlayers[currentPlayer].makeMove();
